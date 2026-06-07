@@ -1,12 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<router-outlet />`,
+  styles: [],
 })
-export class App {
-  protected readonly title = signal('eagle-bank');
-}
+export class App {}
