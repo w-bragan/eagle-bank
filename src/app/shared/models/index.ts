@@ -48,3 +48,5 @@ export interface PaginatedResponse<T> {
   page: number;
   pageSize: number;
 }
+
+export type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'muted';

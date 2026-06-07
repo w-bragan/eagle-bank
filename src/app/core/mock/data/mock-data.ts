@@ -19,6 +19,12 @@ export const MOCK_USERS: (User & { password: string })[] = [
     address: '124 High Street, London, W1 1BB',
     avatarUrl: undefined,
   },
+  {
+    id: '3',
+    name: 'Hugh Mungus',
+    email: 'H@H',
+    password: '11111111',
+  }
 ];
 
 export const MOCK_ACCOUNTS: Account[] = [
@@ -72,6 +78,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Housing',
     date: '2026-05-02T09:00:00Z',
     status: 'completed',
+    reference: 'RENT-MAY26',
   },
   {
     id: '3',
@@ -82,6 +89,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Transport',
     date: '2026-05-10T08:22:00Z',
     status: 'completed',
+    reference: 'TFL-MAY26',
   },
   {
     id: '4',
@@ -102,6 +110,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Shopping',
     date: '2026-05-20T14:10:00Z',
     status: 'completed',
+    reference: 'AMZN-MAY26',
   },
   {
     id: '6',
@@ -123,6 +132,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Housing',
     date: '2026-06-01T09:30:00Z',
     status: 'completed',
+    reference: 'RENT-JUN26',
   },
   {
     id: '8',
@@ -133,6 +143,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Groceries',
     date: '2026-06-02T17:45:00Z',
     status: 'completed',
+    reference: 'TESCO-JUN26',
   },
   {
     id: '9',
@@ -143,6 +154,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Transfer',
     date: '2026-06-03T10:00:00Z',
     status: 'completed',
+    reference: 'TRF-SAV-JUN26',
   },
   {
     id: '10',
@@ -153,6 +165,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Transfer',
     date: '2026-06-03T10:01:00Z',
     status: 'completed',
+    reference: 'TRF-CURR-SAV-JUN26',
   },
   {
     id: '11',
@@ -163,6 +176,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Entertainment',
     date: '2026-06-04T00:00:00Z',
     status: 'completed',
+    reference: 'NETFLIX-JUN26',
   },
   {
     id: '12',
@@ -173,6 +187,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Shopping',
     date: '2026-06-04T11:30:00Z',
     status: 'completed',
+    reference: 'JOHNLEW-JUN26',
   },
   {
     id: '13',
@@ -183,6 +198,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Income',
     date: '2026-06-04T11:30:00Z',
     status: 'completed',
+    reference: 'TAXREF-JUN26',
   },
   {
     id: '14',
@@ -193,6 +209,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Dining',
     date: '2026-06-04T08:05:00Z',
     status: 'completed',
+    reference: 'COFFEE-JUN26',
   },
   {
     id: '15',
@@ -203,6 +220,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Income',
     date: '2026-06-04T16:00:00Z',
     status: 'pending',
+    reference: 'FREEL-JUN26',
   },
   {
     id: '16',
@@ -213,5 +231,6 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     category: 'Entertainment',
     date: '2026-06-04T00:00:00Z',
     status: 'completed',
+    reference: 'SUBS-JUN26',
   },
 ];

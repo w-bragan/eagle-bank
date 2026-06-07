@@ -1,17 +1,17 @@
-import { Component, ChangeDetectionStrategy, inject, computed, resource } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { DashboardService } from './dashboard.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
-import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { AlertComponent } from '../../shared/components/alert/alert.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { TableComponent } from '../../shared/components/table/table.component';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
+import { TransactionDetailComponent } from '../../shared/components/transaction-detail/transaction-detail.component';
 import { Account, Transaction } from '../../shared/models';
-
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'muted';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,12 +21,13 @@ type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'mute
     RouterLink,
     CurrencyPipe,
     DatePipe,
-    TitleCasePipe,
     CardComponent,
     SkeletonComponent,
-    BadgeComponent,
     AlertComponent,
     PageHeaderComponent,
+    TableComponent,
+    ModalComponent,
+    TransactionDetailComponent,
   ],
   template: `
     <div class="animate-fade-in">
@@ -56,12 +57,12 @@ type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'mute
       } @else if (data.error()) {
         <eb-alert type="error" message="Could not load dashboard. Please try again." />
 
-      } @else if (data.value(); as d) {
+      } @else if (data.value(); as dashboard) {
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <eb-card>
             <div class="flex items-start justify-between">
               <p class="text-sm font-medium text-text-secondary">Total Balance</p>
-              <div class="p-2 bg-primary-50 rounded-lg">
+              <div class="flex p-2 bg-primary-50 rounded-lg">
                 <span
                   class="material-icons text-primary-600 text-[20px] leading-none"
                   aria-hidden="true"
@@ -70,17 +71,17 @@ type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'mute
               </div>
             </div>
             <p class="mt-3 text-2xl font-bold text-text-primary tabular-nums">
-              {{ d.summary.totalBalance | currency: 'GBP' : 'symbol' : '1.2-2' }}
+              {{ dashboard.summary.totalBalance | currency: 'GBP' : 'symbol' : '1.2-2' }}
             </p>
             <p class="mt-1 text-xs text-text-muted">
-              Across {{ d.accounts.length }} account{{ d.accounts.length === 1 ? '' : 's' }}
+              Across {{ dashboard.accounts.length }} account{{ dashboard.accounts.length === 1 ? '' : 's' }}
             </p>
           </eb-card>
 
           <eb-card>
             <div class="flex items-start justify-between">
               <p class="text-sm font-medium text-text-secondary">Monthly Deposits</p>
-              <div class="p-2 bg-success-light rounded-lg">
+              <div class="flex p-2 bg-success-light rounded-lg">
                 <span
                   class="material-icons text-success text-[20px] leading-none"
                   aria-hidden="true"
@@ -89,7 +90,7 @@ type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'mute
               </div>
             </div>
             <p class="mt-3 text-2xl font-bold text-success tabular-nums">
-              {{ d.summary.monthlyDeposits | currency: 'GBP' : 'symbol' : '1.2-2' }}
+              {{ dashboard.summary.monthlyDeposits | currency: 'GBP' : 'symbol' : '1.2-2' }}
             </p>
             <p class="mt-1 text-xs text-text-muted">This month</p>
           </eb-card>
@@ -97,7 +98,7 @@ type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'mute
           <eb-card>
             <div class="flex items-start justify-between">
               <p class="text-sm font-medium text-text-secondary">Monthly Outflows</p>
-              <div class="p-2 bg-error-light rounded-lg">
+              <div class="flex p-2 bg-error-light rounded-lg">
                 <span
                   class="material-icons text-error text-[20px] leading-none"
                   aria-hidden="true"
@@ -106,7 +107,7 @@ type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'mute
               </div>
             </div>
             <p class="mt-3 text-2xl font-bold text-error tabular-nums">
-              {{ d.summary.monthlyWithdrawals | currency: 'GBP' : 'symbol' : '1.2-2' }}
+              {{ dashboard.summary.monthlyWithdrawals | currency: 'GBP' : 'symbol' : '1.2-2' }}
             </p>
             <p class="mt-1 text-xs text-text-muted">This month</p>
           </eb-card>
@@ -143,128 +144,36 @@ type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'mute
             >
           </div>
 
-          @if (d.summary.recentTransactions.length === 0) {
+          @if (dashboard.summary.recentTransactions.length === 0) {
             <div class="px-6 py-12 text-center">
               <p class="text-sm text-text-muted">No transactions yet.</p>
             </div>
           } @else {
-            <div class="hidden sm:block overflow-x-auto">
-              <table class="w-full text-sm" aria-label="Recent transactions">
-                <thead>
-                  <tr class="border-b border-border bg-surface-muted">
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider"
-                    >
-                      Date
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider"
-                    >
-                      Description
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider"
-                    >
-                      Account
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider"
-                    >
-                      Type
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-right text-xs font-medium text-text-secondary uppercase tracking-wider"
-                    >
-                      Amount
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider"
-                    >
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-border">
-                  @for (txn of d.summary.recentTransactions; track txn.id) {
-                    <tr class="hover:bg-surface-muted transition-colors">
-                      <td class="px-6 py-4 whitespace-nowrap text-text-secondary tabular-nums">
-                        {{ txn.date | date: 'd MMM y' }}
-                      </td>
-                      <td class="px-6 py-4">
-                        <p class="font-medium text-text-primary">{{ txn.description }}</p>
-                        @if (txn.category) {
-                          <p class="text-xs text-text-muted mt-0.5">{{ txn.category }}</p>
-                        }
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-text-secondary">
-                        {{ accountLabel(txn, d.accounts) }}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <eb-badge [variant]="typeVariant(txn.type)">{{
-                          txn.type | titlecase
-                        }}</eb-badge>
-                      </td>
-                      <td
-                        class="px-6 py-4 whitespace-nowrap text-right font-semibold tabular-nums"
-                        [class.text-success]="txn.type === 'deposit'"
-                        [class.text-error]="txn.type !== 'deposit'"
-                      >
-                        {{ txn.type === 'deposit' ? '+' : '-'
-                        }}{{ txn.amount | currency: 'GBP' : 'symbol' : '1.2-2' }}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <eb-badge [variant]="statusVariant(txn.status)">{{
-                          txn.status | titlecase
-                        }}</eb-badge>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-
-            <div class="sm:hidden divide-y divide-border">
-              @for (txn of d.summary.recentTransactions; track txn.id) {
-                <div class="px-4 py-3 flex items-center justify-between gap-3">
-                  <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-text-primary truncate">
-                      {{ txn.description }}
-                    </p>
-                    <p class="text-xs text-text-muted mt-0.5">
-                      {{ txn.date | date: 'd MMM y' }} · {{ accountLabel(txn, d.accounts) }}
-                    </p>
-                  </div>
-                  <div class="text-right flex-shrink-0">
-                    <p
-                      class="text-sm font-semibold tabular-nums"
-                      [class.text-success]="txn.type === 'deposit'"
-                      [class.text-error]="txn.type !== 'deposit'"
-                    >
-                      {{ txn.type === 'deposit' ? '+' : '-'
-                      }}{{ txn.amount | currency: 'GBP' : 'symbol' : '1.2-2' }}
-                    </p>
-                    <eb-badge [variant]="statusVariant(txn.status)" class="mt-1">{{
-                      txn.status | titlecase
-                    }}</eb-badge>
-                  </div>
-                </div>
-              }
-            </div>
+            <eb-table [data]="dashboard.summary.recentTransactions" [clickable]="true" (rowClick)="openModal($event)" />
           }
         </eb-card>
       }
     </div>
+
+    <eb-modal [open]="!!selectedTxn()" ariaLabel="Transaction detail" (closed)="closeModal()">
+      <div ebModalTitle class="flex items-center gap-4">
+        <span class="material-icons text-[24px] text-text-secondary leading-none" aria-hidden="true">receipt_long</span>
+        <div>
+          <p class="text-sm font-medium text-text-primary">{{ selectedTxn()?.description }}</p>
+          <p class="text-sm text-text-secondary">{{ selectedTxn()?.date | date:'mediumDate' }}</p>
+        </div>
+      </div>
+      @if (selectedTxn(); as txn) {
+        <eb-transaction-detail [transaction]="txn" />
+      }
+    </eb-modal>
   `,
 })
 export class DashboardComponent {
   private dashboardService = inject(DashboardService);
   private auth = inject(AuthService);
+
+  protected selectedTxn = signal<Transaction | null>(null);
 
   protected data = resource({
     loader: () =>
@@ -283,22 +192,13 @@ export class DashboardComponent {
     return `${salutation}, ${name}`;
   });
 
+  protected openModal(txn: Transaction): void { this.selectedTxn.set(txn); }
+  protected closeModal(): void                { this.selectedTxn.set(null); }
+
   protected accountLabel(txn: Transaction, accounts: Account[]): string {
     const acc = accounts.find((a) => a.id === txn.accountId);
     return acc
       ? `${acc.type.charAt(0).toUpperCase() + acc.type.slice(1)} ••${acc.accountNumber.slice(-4)}`
       : '—';
-  }
-
-  protected typeVariant(type: Transaction['type']): BadgeVariant {
-    return { deposit: 'success', withdrawal: 'error', transfer: 'info' }[
-      type
-    ] as BadgeVariant;
-  }
-
-  protected statusVariant(status: Transaction['status']): BadgeVariant {
-    return { completed: 'success', pending: 'warning', failed: 'error' }[
-      status
-    ] as BadgeVariant;
   }
 }

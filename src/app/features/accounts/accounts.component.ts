@@ -8,9 +8,7 @@ import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.com
 import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { AlertComponent } from '../../shared/components/alert/alert.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
-import { Account } from '../../shared/models';
-
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'muted';
+import { Account, BadgeVariant } from '../../shared/models';
 
 const TYPE_ICON: Record<Account['type'], string> = {
   current: 'account_balance',
@@ -25,9 +23,9 @@ const TYPE_LABEL: Record<Account['type'], string> = {
 };
 
 const ICON_BG: Record<Account['type'], string> = {
-  current: 'p-2.5 bg-primary-50 rounded-lg',
-  savings: 'p-2.5 bg-success-light rounded-lg',
-  credit: 'p-2.5 bg-warning-light rounded-lg',
+  current: 'flex p-2.5 bg-primary-50 rounded-lg',
+  savings: 'flex p-2.5 bg-success-light rounded-lg',
+  credit: 'flex p-2.5 bg-warning-light rounded-lg',
 };
 
 const ICON_COLOR: Record<Account['type'], string> = {

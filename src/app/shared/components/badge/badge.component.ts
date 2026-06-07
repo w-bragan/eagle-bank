@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
-
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'muted';
+import { BadgeVariant } from '../../models';
 
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
   default: 'bg-primary-100 text-primary-800',

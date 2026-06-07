@@ -7,9 +7,7 @@ import { CardComponent } from '../../../shared/components/card/card.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { AlertComponent } from '../../../shared/components/alert/alert.component';
-import { Account, Transaction, PaginatedResponse } from '../../../shared/models';
-
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'muted';
+import { Account, Transaction, PaginatedResponse, BadgeVariant } from '../../../shared/models';
 
 const TYPE_LABEL: Record<Account['type'], string> = {
   current: 'Current Account',
