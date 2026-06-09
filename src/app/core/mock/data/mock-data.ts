@@ -19,12 +19,6 @@ export const MOCK_USERS: (User & { password: string })[] = [
     address: '124 High Street, London, W1 1BB',
     avatarUrl: undefined,
   },
-  {
-    id: '3',
-    name: 'Hugh Mungus',
-    email: 'H@H',
-    password: '11111111',
-  }
 ];
 
 export const MOCK_ACCOUNTS: Account[] = [

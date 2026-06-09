@@ -20,6 +20,11 @@ Email:    jane@eaglebank.com
 Password: Password123!
 ```
 
+```
+Email:    john@eaglebank.com
+Password: Password123!
+```
+
 ---
 
 ## Running tests
