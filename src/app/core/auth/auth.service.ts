@@ -87,4 +87,10 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem('auth_token');
   }
+
+  updateProfile(updates: Partial<User>): Observable<User> {
+    return this.http.put<User>('/api/profile', updates).pipe(
+      tap(user => this._user.set(user)),
+    );
+  }
 }

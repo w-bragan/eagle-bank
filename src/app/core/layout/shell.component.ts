@@ -40,7 +40,7 @@ const NAV_ITEMS: NavItem[] = [
         <div class="flex items-center h-16 px-6 border-b border-border flex-shrink-0">
           <div class="flex items-center gap-2.5">
             <div
-              class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0"
+              class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0"
             >
               <span class="material-icons text-white text-[18px] leading-none" aria-hidden="true"
                 >account_balance</span

@@ -9,7 +9,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
       <div class="text-center mb-8">
         <div class="inline-flex items-center gap-3 mb-2">
           <div
-            class="w-10 h-10 rounded-xl bg-primary-700 flex items-center justify-center shadow-md"
+            class="w-10 h-10 rounded-lg bg-primary-700 flex items-center justify-center shadow-md"
           >
             <span class="material-icons text-white text-[18px] leading-none" aria-hidden="true"
               >account_balance</span

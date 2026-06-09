@@ -22,9 +22,9 @@ const TYPE_ICON: Record<Account['type'], string> = {
 };
 
 const ICON_BG: Record<Account['type'], string> = {
-  current: 'p-3 bg-primary-50 rounded-xl',
-  savings: 'p-3 bg-success-light rounded-xl',
-  credit: 'p-3 bg-warning-light rounded-xl',
+  current: 'flex p-3 bg-primary-50 rounded-xl',
+  savings: 'flex p-3 bg-success-light rounded-xl',
+  credit: 'flex p-3 bg-warning-light rounded-xl',
 };
 
 const ICON_COLOR: Record<Account['type'], string> = {
