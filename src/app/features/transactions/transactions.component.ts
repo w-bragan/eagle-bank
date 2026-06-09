@@ -49,7 +49,7 @@ import { TransactionsService } from './transactions.service';
                 <span>{{ paginationLabel(result) }}</span>
                 <div class="flex gap-2">
                   <button type="button" (click)="prevPage()" [disabled]="currentPage() === 1" class="px-3 py-1.5 rounded border border-border hover:bg-surface-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Previous</button>
-                  <button type="button" (click)="nextPage(result.total)" [disabled]="isLastPage(result.total)" class="px-3 py-1.5 rounded border border-border hover:bg-surface-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Next</button>
+                  <button type="button" (click)="nextPage(result.total, result.pageSize)" [disabled]="isLastPage(result.total, result.pageSize)" class="px-3 py-1.5 rounded border border-border hover:bg-surface-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Next</button>
                 </div>
               </div>
             }
@@ -79,9 +79,10 @@ export class TransactionsComponent {
   protected currentPage  = signal(1);
   protected selectedTxn  = signal<Transaction | null>(null);
 
-  protected data = resource<PaginatedResponse<Transaction>, unknown>({
-    loader: () => firstValueFrom(
-      this.transactionsService.getTransactions({ sort: 'date', order: this.sortOrder(), page: this.currentPage(), pageSize: 20 })
+  protected data = resource<PaginatedResponse<Transaction>, { sort: 'date' | 'amount'; order: 'asc' | 'desc'; page: number; pageSize: number }>({
+    params: () => ({ sort: 'date', order: this.sortOrder(), page: this.currentPage(), pageSize: 10 }),
+    loader: ({ params }) => firstValueFrom(
+      this.transactionsService.getTransactions(params)
     ),
   });
 
@@ -94,8 +95,8 @@ export class TransactionsComponent {
   }
 
   protected prevPage(): void { this.currentPage.update(p => Math.max(1, p - 1)); }
-  protected nextPage(total: number): void { if (!this.isLastPage(total)) this.currentPage.update(p => p + 1); }
-  protected isLastPage(total: number): boolean { return this.currentPage() * 20 >= total; }
+  protected nextPage(total: number, pageSize: number): void { if (!this.isLastPage(total, pageSize)) this.currentPage.update(p => p + 1); }
+  protected isLastPage(total: number, pageSize: number): boolean { return this.currentPage() * pageSize >= total; }
 
   protected paginationLabel(result: PaginatedResponse<Transaction>): string {
     const from = (result.page - 1) * result.pageSize + 1;

@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, input, signal, resource } f
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
-import { AccountsService } from '../accounts.service';
+import { AccountsService, TransactionQuery } from '../accounts.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
@@ -276,8 +276,8 @@ const ICON_COLOR: Record<Account['type'], string> = {
                     </button>
                     <button
                       type="button"
-                      (click)="nextPage(result.total)"
-                      [disabled]="isLastPage(result.total)"
+                     (click)="nextPage(result.total, result.pageSize)"
+                     [disabled]="isLastPage(result.total, result.pageSize)"
                       class="px-3 py-1.5 rounded border border-border hover:bg-surface-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
                       Next
@@ -300,21 +300,20 @@ export class AccountDetailComponent {
   protected sortOrder = signal<'asc' | 'desc'>('desc');
   protected currentPage = signal(1);
 
-  protected account = resource<Account, unknown>({
-    loader: () => firstValueFrom(this.accountsService.getAccount(this.id())),
+  protected account = resource<Account, string>({
+    params: () => this.id(),
+    loader: ({ params }) => firstValueFrom(this.accountsService.getAccount(params)),
   });
 
-  protected txns = resource<PaginatedResponse<Transaction>, unknown>({
-    loader: () =>
-      firstValueFrom(
-        this.accountsService.getTransactions({
-          accountId: this.id(),
-          sort: 'date',
-          order: this.sortOrder(),
-          page: this.currentPage(),
-          pageSize: 10,
-        }),
-      ),
+  protected txns = resource<PaginatedResponse<Transaction>, TransactionQuery>({
+    params: () => ({
+      accountId: this.id(),
+      sort: 'date' as const,
+      order: this.sortOrder(),
+      page: this.currentPage(),
+      pageSize: 10,
+    }),
+    loader: ({ params }) => firstValueFrom(this.accountsService.getTransactions(params)),
   });
 
   protected toggleSort(): void {
@@ -325,11 +324,11 @@ export class AccountDetailComponent {
   protected prevPage(): void {
     this.currentPage.update((p) => Math.max(1, p - 1));
   }
-  protected nextPage(total: number): void {
-    if (!this.isLastPage(total)) this.currentPage.update((p) => p + 1);
+  protected nextPage(total: number, pageSize: number): void {
+    if (!this.isLastPage(total, pageSize)) this.currentPage.update((p) => p + 1);
   }
-  protected isLastPage(total: number): boolean {
-    return this.currentPage() * 10 >= total;
+  protected isLastPage(total: number, pageSize: number): boolean {
+    return this.currentPage() * pageSize >= total;
   }
 
   protected paginationLabel(result: PaginatedResponse<Transaction>): string {

@@ -1,11 +1,6 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  signal,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { AuthService } from '../auth/auth.service';
 
 interface NavItem {
@@ -25,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ModalComponent],
   template: `
     @if (mobileOpen()) {
       <div
@@ -75,12 +70,14 @@ const NAV_ITEMS: NavItem[] = [
 
         <div class="flex-shrink-0 border-t border-border p-4">
           <div class="flex items-center gap-3 mb-3">
-            <div
-              class="w-9 h-9 rounded-full bg-primary-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
-              aria-hidden="true"
+            <button
+              type="button"
+              (click)="additionsOpen.set(true)"
+              class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 hover:bg-primary-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+              aria-label="Open additions panel"
             >
               {{ userInitials() }}
-            </div>
+            </button>
             <div class="min-w-0">
               <p class="text-sm font-medium text-text-primary truncate">{{ userName() }}</p>
               <p class="text-xs text-text-muted truncate">{{ userEmail() }}</p>
@@ -127,6 +124,19 @@ const NAV_ITEMS: NavItem[] = [
         </main>
       </div>
     </div>
+
+    <eb-modal [open]="additionsOpen()" ariaLabel="Additions" (closed)="additionsOpen.set(false)">
+      <div ebModalTitle class="flex items-center gap-3">
+        <span class="text-base font-semibold text-text-primary">Additions</span>
+      </div>
+      <div ebModalContent class="space-y-2">
+        <li class="flex items-start gap-3">Dark mode</li>
+        <li class="flex items-start gap-3">Toast/snackbar notifications</li>
+        <li class="flex items-start gap-3">Spending chart on dashboard</li>
+        <li class="flex items-start gap-3">Storybook Integration</li>
+        <li class="flex items-start gap-3">E2E suite (Playwright/Cypress)</li>
+      </div>
+    </eb-modal>
   `,
 })
 export class ShellComponent {
@@ -134,6 +144,7 @@ export class ShellComponent {
 
   protected navItems = NAV_ITEMS;
   protected mobileOpen = signal(false);
+  protected additionsOpen = signal(false);
 
   protected userName = computed(() => this.auth.user()?.name ?? '');
   protected userEmail = computed(() => this.auth.user()?.email ?? '');
